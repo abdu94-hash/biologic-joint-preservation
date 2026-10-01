@@ -9,7 +9,7 @@ Free companion to *Biologic Joint Preservation: The Clinical Guide to PRP in Ost
 Seven screens, all running entirely in the browser, built from the book's Clinic Quick Guide, summary tables and appendices:
 
 1. **Consultation** — selection worksheet (QG3), alternatives (QG4), shared decision and teach back (QG5), medication and procedure plan (QG6); builds a consultation note and handover (QG11) and lists open documentation items. No score is produced.
-2. **Product & dose** — absolute platelet dose, fold enrichment, platelet recovery (yield) and course total with unit handling; refuses to calculate from a kit label; full product and procedure record (QG7, A3).
+2. **Product & dose** — pre-preparation expected-yield estimate; measured absolute platelet dose, fold enrichment, platelet recovery (yield) and course total with unit handling; refuses to calculate from a kit label; full product and procedure record (QG7, A3).
 3. **Review & next step** — declared outcome measure and criterion, change from baseline, the five-pattern reassessment pathway, and the before-any-repeat-course checklist (QG8, QG9, S4).
 4. **Safety triage** — post-procedure warning features mapped to the level of response; contact details flow into patient page B2 (QG10). Does not diagnose.
 5. **Teaching cases** — the eight branching cases from Appendix E, with feedback on every option.
@@ -33,6 +33,7 @@ Seven screens, all running entirely in the browser, built from the book's Clinic
 
 ## Changelog
 
+- **1 October 2026 (later)** — Product & dose: added an "Expected yield before preparation" estimator (blood volume, PRP volume, recovery rate and baseline count give expected platelets, concentration, concentration factor and the dose for a planned injection). No default recovery is offered; a button carries over the recovery measured on the same screen, and manufacturer figures and recoveries of 90% or more are flagged.
 - **1 October 2026** — Product & dose: added platelet recovery (yield) and course-total calculations, blood-volume and prepared-volume fields, checks for recovery above 100% and injected volume above prepared volume, and guidance on anticoagulant pairing, analyzer range and dead space. Dose note now records that dose-stratified meta-analyses disagree about where benefit levels off. Matches the manuscript's QG7, A3 and Chapters 4 and 11.
 - **16 September 2026** — Initial release.
 
