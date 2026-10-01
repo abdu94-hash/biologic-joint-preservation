@@ -9,7 +9,7 @@ Free companion to *Biologic Joint Preservation: The Clinical Guide to PRP in Ost
 Seven screens, all running entirely in the browser, built from the book's Clinic Quick Guide, summary tables and appendices:
 
 1. **Consultation** — selection worksheet (QG3), alternatives (QG4), shared decision and teach back (QG5), medication and procedure plan (QG6); builds a consultation note and handover (QG11) and lists open documentation items. No score is produced.
-2. **Product & dose** — absolute platelet dose and fold enrichment with unit handling; refuses to calculate from a kit label; full product and procedure record (QG7, A3).
+2. **Product & dose** — absolute platelet dose, fold enrichment, platelet recovery (yield) and course total with unit handling; refuses to calculate from a kit label; full product and procedure record (QG7, A3).
 3. **Review & next step** — declared outcome measure and criterion, change from baseline, the five-pattern reassessment pathway, and the before-any-repeat-course checklist (QG8, QG9, S4).
 4. **Safety triage** — post-procedure warning features mapped to the level of response; contact details flow into patient page B2 (QG10). Does not diagnose.
 5. **Teaching cases** — the eight branching cases from Appendix E, with feedback on every option.
@@ -30,6 +30,11 @@ Seven screens, all running entirely in the browser, built from the book's Clinic
 2. Upload `index.html`, `og-image.png`, `robots.txt`, `sitemap.xml`, `404.html`, `.nojekyll`, and this README.
 3. Settings → Pages → Source: **Deploy from a branch** → Branch `main`, folder `/ (root)` → Save.
 4. The site appears at `https://abdu94-hash.github.io/biologic-joint-preservation/` within a few minutes.
+
+## Changelog
+
+- **1 October 2026** — Product & dose: added platelet recovery (yield) and course-total calculations, blood-volume and prepared-volume fields, checks for recovery above 100% and injected volume above prepared volume, and guidance on anticoagulant pairing, analyzer range and dead space. Dose note now records that dose-stratified meta-analyses disagree about where benefit levels off. Matches the manuscript's QG7, A3 and Chapters 4 and 11.
+- **16 September 2026** — Initial release.
 
 ## Legal
 

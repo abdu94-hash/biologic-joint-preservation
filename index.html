@@ -313,15 +313,21 @@ details.terms li b{display:block}
    <div class="field"><label for="dUnit">Units for platelet counts</label><select id="dUnit"><option value="1">&times;10&#8313;/L (= &times;10&sup3;/&micro;L)</option><option value="1000">million/&micro;L (&times;10&#8310;/&micro;L)</option></select></div>
    <div class="field"><label for="dBase">Baseline (whole-blood) platelet count</label><input id="dBase" type="number" min="0" step="any" inputmode="decimal"><span class="unk"><input type="checkbox" id="dBaseU"> not measured</span></div>
    <div class="field"><label for="dPrp">PRP platelet count</label><input id="dPrp" type="number" min="0" step="any" inputmode="decimal"><span class="unk"><input type="checkbox" id="dPrpU"> not measured</span></div>
+   <div class="field"><label for="dBlood">Blood volume drawn (mL)</label><input id="dBlood" type="number" min="0" step="any" inputmode="decimal"></div>
+   <div class="field"><label for="dPrepV">PRP volume prepared (mL)</label><input id="dPrepV" type="number" min="0" step="any" inputmode="decimal"></div>
    <div class="field"><label for="dVol">Injected PRP volume (mL)</label><input id="dVol" type="number" min="0" step="any" inputmode="decimal"></div>
    <div class="field"><label for="dSrc">Source of the PRP count</label><select id="dSrc"><option value="measured">Measured on this patient's product</option><option value="label">Kit label or marketing claim</option></select></div>
+   <div class="field"><label for="dPrior">Doses already given this course (billion, total)</label><input id="dPrior" type="number" min="0" step="any" inputmode="decimal" placeholder="0 if first injection"></div>
   </div>
   <div class="grid3" style="margin-top:14px">
    <div class="metric"><div class="lab">Absolute platelet dose</div><div class="big" id="mDose">&mdash;</div><div class="sub">billion platelets delivered</div></div>
    <div class="metric"><div class="lab">Fold enrichment</div><div class="big" id="mFold">&mdash;</div><div class="sub">PRP count &divide; baseline count</div></div>
+   <div class="metric"><div class="lab">Platelet recovery (yield)</div><div class="big" id="mRec">&mdash;</div><div class="sub">share of drawn platelets kept in the prepared PRP</div></div>
+   <div class="metric"><div class="lab">Course total so far</div><div class="big" id="mCourse">&mdash;</div><div class="sub">billion platelets, this injection plus earlier ones</div></div>
   </div>
   <div id="doseNote"></div>
-  <div class="note"><b>How the dose is calculated</b>For a count in &times;10&#8313;/L: dose in billions = count &times; injected volume in mL &divide; 1,000. Illustration: 800 &times;10&#8313;/L &times; 5 mL &divide; 1,000 = 4 billion platelets. This describes exposure; it does not establish an optimal dose. Fold enrichment alone does not describe the absolute dose or establish equivalence between preparations.</div>
+  <div class="note"><b>How the dose is calculated</b>For a count in &times;10&#8313;/L: dose in billions = count &times; injected volume in mL &divide; 1,000. Illustration: 800 &times;10&#8313;/L &times; 5 mL &divide; 1,000 = 4 billion platelets. Use the volume actually injected, not the volume prepared; syringe and needle dead space retain part of the product. This describes exposure; it does not establish an optimal dose. Fold enrichment alone does not describe the absolute dose or establish equivalence between preparations.</div>
+  <div class="note"><b>How recovery is calculated</b>Recovery % = (PRP volume prepared &times; PRP count) &divide; (blood volume &times; baseline count) &times; 100. Illustration: (6 mL &times; 800) &divide; (30 mL &times; 250) &times; 100 = 64%. Pair each volume with a count measured in the same state: if the baseline count comes from a separate tube without the kit's anticoagulant, enter the blood volume drawn excluding anticoagulant. If the PRP count exceeds the analyzer's validated range, dilute as the analyzer's instructions direct and correct for the dilution. Recovery describes how the device and operator performed; it is not a clinical outcome or a target.</div>
   <div class="btnrow"><button class="btn sec" id="doseExample">Load the worked example</button></div>
 
   <h3><span class="tag">A3</span>Product and procedure record</h3>
@@ -331,7 +337,7 @@ details.terms li b{display:block}
    <button class="btn" id="printProd">Print record</button>
    <button class="btn sec" id="resetProd">Reset</button>
   </div>
-  <p class="basis">Basis: product documentation framework; QG7 and A3; Chapters 3, 4, 11 and 12; source Q5. Arithmetic only; no dose recommendation. Numerical preparation settings must come from the applicable validated process and manufacturer instructions.</p>
+  <p class="basis">Basis: product documentation framework; QG7 and A3; Chapters 3, 4, 11 and 12; source Q5. Arithmetic only; no dose or recovery target. Recovery and course-total calculations added 1 October 2026. Numerical preparation settings must come from the applicable validated process and manufacturer instructions.</p>
  </div>
 </section>
 
@@ -675,20 +681,30 @@ function calcDose(){
  var bU=$("#dBaseU").checked, pU=$("#dPrpU").checked, label=val("dSrc")==="label";
  $("#dBase").disabled=bU; $("#dPrp").disabled=pU;
  var b=parseFloat(val("dBase"))*mult, p=parseFloat(val("dPrp"))*mult, v=parseFloat(val("dVol"));
+ var bv=parseFloat(val("dBlood")), pv=parseFloat(val("dPrepV")), prior=parseFloat(val("dPrior"));
  var notes=[];
- var doseOK=!pU && !label && p>0 && v>0;
- if(doseOK){ var d=p*v/1000; $("#mDose").textContent=fmt(d,2); }
+ var doseOK=!pU && !label && p>0 && v>0, d=NaN;
+ if(doseOK){ d=p*v/1000; $("#mDose").textContent=fmt(d,2); }
  else $("#mDose").textContent=(pU||label)?"Unknown":"—";
+ var recOK=!bU && !pU && !label && b>0 && p>0 && bv>0 && pv>0, rec=NaN;
+ if(recOK){ rec=(pv*p)/(bv*b)*100; $("#mRec").textContent=fmt(rec,0)+"%"; }
+ else $("#mRec").textContent=(bU||pU||label)?"Unknown":"—";
+ var priorBad=val("dPrior")!=="" && !(prior>=0);
+ if(doseOK && !priorBad) $("#mCourse").textContent=fmt(d+(prior>0?prior:0),2);
+ else $("#mCourse").textContent=(pU||label)?"Unknown":"—";
  if(!bU && !pU && !label && b>0 && p>0) $("#mFold").textContent=fmt(p/b,1)+"×"; else $("#mFold").textContent=(bU||pU||label)?"Unknown":"—";
  if(label) notes.push(["warn","Record the dose as unknown","A kit's label or marketing claim does not replace a measured patient-specific count, so no dose is calculated. Record the PRP platelet count as unknown."]);
  if(pU) notes.push(["","PRP count not measured","The delivered dose is unknown. Record it as unknown; an unknown dose does not prove underdosing if the patient later does not respond."]);
- if(doseOK) notes.push(["","Exposure, not a target","No minimum, maximum or optimal clinical platelet dose has been established. Record this figure with the leukocyte and red-cell characteristics and processing details."]);
+ if(doseOK) notes.push(["","Exposure, not a target","No minimum, maximum or optimal clinical platelet dose has been established; dose-stratified meta-analyses disagree about where benefit levels off (Chapter 4). Record this figure with the leukocyte and red-cell characteristics and processing details."]);
+ if(recOK && rec>100) notes.push(["stop","Recovery above 100%","More platelets are recorded in the product than were drawn. Check the units, the volumes, and whether the baseline count and blood volume were measured in the same state (with or without anticoagulant)."]);
+ if(pv>0 && v>0 && v>pv) notes.push(["stop","Injected volume exceeds prepared volume","The injected volume cannot be larger than the volume prepared. Check both entries."]);
+ if(priorBad) notes.push(["warn","Check the earlier doses","Enter the total of earlier recorded doses in this course in billions, or leave the field blank for a first injection."]);
  if(!bU&&!pU&&!label&&b>0&&p>0&&p<b) notes.push(["stop","PRP count below baseline","The product count is lower than the whole-blood count. Check the measurement, units and processing before release."]);
  if(mult===1 && p>0 && p<20) notes.push(["warn","Check the units","This value is unusually low for ×10⁹/L. If the count is in million/µL, change the units selector."]);
  $("#doseNote").innerHTML=notes.map(function(n){return '<div class="note '+n[0]+'"><b>'+n[1]+'</b>'+n[2]+'</div>';}).join("");
 }
-["dUnit","dBase","dPrp","dVol","dSrc","dBaseU","dPrpU"].forEach(function(id){ $("#"+id).addEventListener("input",calcDose); $("#"+id).addEventListener("change",calcDose); });
-$("#doseExample").addEventListener("click",function(){ $("#dUnit").value="1"; $("#dBaseU").checked=false; $("#dPrpU").checked=false; $("#dSrc").value="measured"; $("#dBase").value="250"; $("#dPrp").value="800"; $("#dVol").value="5"; calcDose(); });
+["dUnit","dBase","dPrp","dBlood","dPrepV","dVol","dSrc","dPrior","dBaseU","dPrpU"].forEach(function(id){ $("#"+id).addEventListener("input",calcDose); $("#"+id).addEventListener("change",calcDose); });
+$("#doseExample").addEventListener("click",function(){ $("#dUnit").value="1"; $("#dBaseU").checked=false; $("#dPrpU").checked=false; $("#dSrc").value="measured"; $("#dBase").value="250"; $("#dPrp").value="800"; $("#dBlood").value="30"; $("#dPrepV").value="6"; $("#dVol").value="5"; $("#dPrior").value=""; calcDose(); });
 $("#printProd").addEventListener("click",function(){ window.print(); });
 $("#resetProd").addEventListener("click",function(){ resetPanel("#p-product"); calcDose(); });
 calcDose();
